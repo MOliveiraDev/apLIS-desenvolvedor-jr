@@ -40,7 +40,7 @@ O primeiro backend deverá ser desenvolvido em PHP e contemplar as seguintes rot
     ]
 ```
 
-- `POST /api/v1/medicos`: cria um novo médico enviado o o body do exemplo abaixo e retornando a mensagem "Médico criado com sucesso".
+- `POST /api/v1/medicos`: cria um novo médico enviando o body do exemplo abaixo e retornando a mensagem "Médico criado com sucesso".
 
 ```json
     {
@@ -72,7 +72,7 @@ O segundo backend deverá ser desenvolvido em NodeJS (JavaScript) e contemplar a
     ]
 ```
 
-- `POST /api/v1/medicos`: cria um novo médico enviado o o body do exemplo abaixo e retornando a mensagem "Médico criado com sucesso".
+- `POST /api/v1/pacientes`: cria um novo paciente enviando o body do exemplo abaixo e retornando a mensagem "Paciente criado com sucesso".
 
 ```json
     {
