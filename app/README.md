@@ -4,6 +4,34 @@ Este frontend foi feito para consumir as APIs de:
 - medicos (backend PHP)
 - pacientes (backend Node.js)
 
+## Apresentacao do site
+Esse frontend foi pensado para ser simples e direto.
+
+Fluxo principal:
+- escolher a tela no menu lateral
+- preencher formulario
+- salvar e ver o registro na lista
+
+## Versao desktop
+### Gerenciamento de médicos
+
+<img src="./assets/WebDesktop-01.png" alt="Tela desktop 1" />
+
+### Gerenciamento de pacientes
+
+<img src="./assets/WebDesktop-02.png" alt="Tela desktop 2" />
+
+## Responsividade
+### Gerenciamento de Pacientes
+
+<img src="./assets/WebMobile-01.png" alt="Tela mobile 1" />
+
+<img src="./assets/WebMobile-02.png" alt="Tela mobile 2" />
+
+### Gerenciamento de médicos
+
+<img src="./assets/WebMobile-03.png" alt="Tela mobile 3" />
+
 ## O que essa tela faz
 - Menu lateral para navegar entre medicos e pacientes
 - Listagem de medicos
