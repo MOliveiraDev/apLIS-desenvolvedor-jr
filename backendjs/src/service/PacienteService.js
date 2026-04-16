@@ -1,3 +1,5 @@
+const PacienteDTO = require('../dto/PacienteDTO');
+
 class PacienteService {
   constructor(pacienteModel) {
     this.pacienteModel = pacienteModel;
@@ -6,15 +8,17 @@ class PacienteService {
   async handle(method, payload) {
     try {
       if (method === 'GET') {
+        const pacientes = await this.pacienteModel.findAll();
+
         return {
           statusCode: 200,
-          payload: await this.pacienteModel.findAll(),
+          payload: pacientes.map((paciente) => paciente.toResponse()),
         };
       }
 
       if (method === 'POST') {
-        const validated = this.validatePaciente(payload);
-        await this.pacienteModel.create(validated);
+        const pacienteDTO = PacienteDTO.fromRequest(payload);
+        await this.pacienteModel.create(pacienteDTO);
 
         return {
           statusCode: 201,
@@ -49,33 +53,6 @@ class PacienteService {
         },
       };
     }
-  }
-
-  validatePaciente(payload) {
-    const nome = String((payload && payload.nome) || '').trim();
-    const dataNascimento = String((payload && payload.dataNascimento) || '').trim();
-    const carteirinha = String((payload && payload.carteirinha) || '').trim();
-    const cpf = String((payload && payload.cpf) || '').trim();
-
-    if (!nome || !dataNascimento || !carteirinha || !cpf) {
-      this.throwValidationError('Campos obrigatorios: nome, dataNascimento, carteirinha e cpf.');
-    }
-
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dataNascimento)) {
-      this.throwValidationError('dataNascimento deve estar no formato YYYY-MM-DD.');
-    }
-
-    if (!/^\d{11}$/.test(cpf)) {
-      this.throwValidationError('cpf deve conter 11 digitos numericos.');
-    }
-
-    return { nome, dataNascimento, carteirinha, cpf };
-  }
-
-  throwValidationError(message) {
-    const error = new Error(message);
-    error.name = 'ValidationError';
-    throw error;
   }
 }
 

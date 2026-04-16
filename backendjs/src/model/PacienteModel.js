@@ -1,3 +1,5 @@
+const PacienteDTO = require('../dto/PacienteDTO');
+
 class PacienteModel {
   constructor(pool) {
     this.pool = pool;
@@ -15,14 +17,16 @@ class PacienteModel {
       ORDER BY id ASC`
     );
 
-    return rows;
+    return rows.map((row) => PacienteDTO.fromDatabase(row));
   }
 
-  async create({ nome, dataNascimento, carteirinha, cpf }) {
+  async create(pacienteDTO) {
+    const payload = pacienteDTO.toPersistence();
+
     await this.pool.execute(
       `INSERT INTO pacientes (nome, data_nascimento, carteirinha, cpf)
        VALUES (?, ?, ?, ?)`,
-      [nome, dataNascimento, carteirinha, cpf]
+      [payload.nome, payload.dataNascimento, payload.carteirinha, payload.cpf]
     );
   }
 }
