@@ -1,16 +1,81 @@
-# React + Vite
+# Frontend - React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este frontend foi feito para consumir as APIs de:
+- medicos (backend PHP)
+- pacientes (backend Node.js)
 
-Currently, two official plugins are available:
+## O que essa tela faz
+- Menu lateral para navegar entre medicos e pacientes
+- Listagem de medicos
+- Cadastro de medicos
+- Listagem de pacientes
+- Cadastro de pacientes
+- Mensagens de sucesso/erro na tela
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tecnologias usadas
+- React
+- Vite
+- Zod (validacao de dados)
+- Vitest (testes unitarios)
 
-## React Compiler
+## Estrutura basica da pasta src
+- `components`: componentes de tela
+- `hooks`: logica de estado e chamadas
+- `api`: funcoes para chamar backend
+- `schemas`: validacoes com Zod
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Como rodar local (sem Docker)
+1. Entrar na pasta:
+```bash
+cd app
+```
 
-## Expanding the ESLint configuration
+2. Instalar dependencias:
+```bash
+npm install
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+3. Rodar o projeto:
+```bash
+npm run dev
+```
+
+Por padrao, abre em `http://localhost:5173`.
+
+## Variaveis de ambiente
+Este frontend usa:
+- `VITE_API_MEDICOS_URL`
+- `VITE_API_PACIENTES_URL`
+
+Se nao definir, usa como padrao:
+- `http://localhost:8000/api/v1/medicos`
+- `http://localhost:3001/api/v1/pacientes`
+
+## Testes
+Rodar testes unitarios:
+```bash
+npm run test
+```
+
+## Build de producao
+Gerar build:
+```bash
+npm run build
+```
+
+Preview do build:
+```bash
+npm run preview
+```
+
+## Rodando com Docker
+Da raiz do projeto:
+```bash
+docker compose up -d --build
+```
+
+Frontend fica em:
+- `http://localhost:5173`
+
+## Observacao
+Para funcionar completo, os dois backends precisam estar no ar junto com o banco.
