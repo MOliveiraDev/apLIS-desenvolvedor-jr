@@ -1,120 +1,122 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useEffect, useMemo, useState } from 'react'
+import { FeedbackAlert } from './components/FeedbackAlert'
+import { MedicosView } from './components/MedicosView'
+import { PacientesView } from './components/PacientesView'
+import { Sidebar } from './components/Sidebar'
+import { useMedicos } from './hooks/useMedicos'
+import { usePacientes } from './hooks/usePacientes'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [activeView, setActiveView] = useState('medicos')
+  const [feedback, setFeedback] = useState({ type: '', message: '' })
+
+  const {
+    medicos,
+    loading: loadingMedicos,
+    submitting: submittingMedicos,
+    load: loadMedicos,
+    create: createMedico,
+  } = useMedicos()
+  const {
+    pacientes,
+    loading: loadingPacientes,
+    submitting: submittingPacientes,
+    load: loadPacientes,
+    create: createPaciente,
+  } = usePacientes()
+
+  const viewMeta = useMemo(
+    () => ({
+      medicos: {
+        title: 'Médicos',
+        subtitle: 'Cadastre profissionais e visualize a equipe médica em tempo real.',
+      },
+      pacientes: {
+        title: 'Pacientes',
+        subtitle: 'Gerencie a carteira de pacientes com cadastro rápido e organizado.',
+      },
+    }),
+    []
+  )
+
+  useEffect(() => {
+    const load = async () => {
+      setFeedback({ type: '', message: '' })
+
+      try {
+        if (activeView === 'medicos') {
+          await loadMedicos()
+        } else {
+          await loadPacientes()
+        }
+      } catch (error) {
+        setFeedback({
+          type: 'error',
+          message: error.message || 'Não foi possível carregar os dados.',
+        })
+      }
+    }
+
+    load()
+  }, [activeView, loadMedicos, loadPacientes])
+
+  const handleMedicoSubmit = async (payload) => {
+    setFeedback({ type: '', message: '' })
+
+    try {
+      await createMedico(payload)
+      setFeedback({ type: 'success', message: 'Médico cadastrado com sucesso.' })
+      return true
+    } catch (error) {
+      setFeedback({ type: 'error', message: error.message || 'Erro ao cadastrar médico.' })
+      return false
+    }
+  }
+
+  const handlePacienteSubmit = async (payload) => {
+    setFeedback({ type: '', message: '' })
+
+    try {
+      await createPaciente(payload)
+      setFeedback({ type: 'success', message: 'Paciente cadastrado com sucesso.' })
+      return true
+    } catch (error) {
+      setFeedback({ type: 'error', message: error.message || 'Erro ao cadastrar paciente.' })
+      return false
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="layout">
+      <Sidebar activeView={activeView} onChangeView={setActiveView} />
 
-      <div className="ticks"></div>
+      <main className="content">
+        <header className="content-header">
+          <p className="section-kicker">Gestão de cadastro</p>
+          <h2>{viewMeta[activeView].title}</h2>
+          <p>{viewMeta[activeView].subtitle}</p>
+        </header>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        <FeedbackAlert feedback={feedback} />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        {activeView === 'medicos' ? (
+          <MedicosView
+            medicos={medicos}
+            loading={loadingMedicos}
+            submitting={submittingMedicos}
+            onSubmit={handleMedicoSubmit}
+          />
+        ) : (
+          <PacientesView
+            pacientes={pacientes}
+            loading={loadingPacientes}
+            submitting={submittingPacientes}
+            onSubmit={handlePacienteSubmit}
+          />
+        )}
+      </main>
+    </div>
   )
 }
 
