@@ -1,4 +1,10 @@
 const PacienteDTO = require('../dto/PacienteDTO');
+const {
+  DuplicateResourceException,
+  InternalServerException,
+  MethodNotAllowedException,
+} = require('../exception/BackendExceptions');
+const CustomApiException = require('../exception/CustomApiException');
 
 class PacienteService {
   constructor(pacienteModel) {
@@ -26,32 +32,20 @@ class PacienteService {
         };
       }
 
-      return {
-        statusCode: 405,
-        payload: { message: 'Metodo nao permitido.' },
-      };
+      throw new MethodNotAllowedException();
     } catch (error) {
-      if (error && error.name === 'ValidationError') {
-        return {
-          statusCode: 422,
-          payload: { message: error.message },
-        };
+      if (error instanceof CustomApiException) {
+        throw error;
       }
 
       if (error && error.code === 'ER_DUP_ENTRY') {
-        return {
-          statusCode: 409,
-          payload: { message: 'Paciente com CPF ou carteirinha ja cadastrado.' },
-        };
+        throw new DuplicateResourceException('Paciente com CPF ou carteirinha ja cadastrado.');
       }
 
-      return {
-        statusCode: 500,
-        payload: {
-          message: 'Erro interno no servidor.',
-          error: error && error.message ? error.message : 'Erro desconhecido.',
-        },
-      };
+      throw new InternalServerException(
+        'Erro interno no servidor.',
+        error && error.message ? error.message : 'Erro desconhecido.'
+      );
     }
   }
 }

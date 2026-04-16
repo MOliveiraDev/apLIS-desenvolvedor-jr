@@ -1,3 +1,5 @@
+const { ValidationException } = require('../exception/BackendExceptions');
+
 class PacienteDTO {
   constructor({ id = null, nome, dataNascimento, carteirinha, cpf }) {
     this.id = id;
@@ -63,9 +65,7 @@ class PacienteDTO {
   }
 
   static throwValidationError(message) {
-    const error = new Error(message);
-    error.name = 'ValidationError';
-    throw error;
+    throw new ValidationException(message);
   }
 }
 
