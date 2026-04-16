@@ -65,7 +65,7 @@ curl http://localhost:3001/api/v1/pacientes
 ```bash
 curl -X POST http://localhost:3001/api/v1/pacientes \
   -H "Content-Type: application/json" \
-  -d '{"nome":"Carlos","idade":32}'
+  -d '{"nome":"Carlos","dataNascimento":"1992-08-21","carteirinha":"123456","cpf":"12345678901"}'
 ```
 
 ## Testes

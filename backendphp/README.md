@@ -59,7 +59,7 @@ curl http://localhost:8000/api/v1/medicos
 ```bash
 curl -X POST http://localhost:8000/api/v1/medicos \
   -H "Content-Type: application/json" \
-  -d '{"nome":"Dra. Ana","especialidade":"Cardiologia"}'
+  -d '{"nome":"Dra. Ana","CRM":"123456","UFCRM":"SP"}'
 ```
 
 ## Testes
