@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../dto/MedicoDTO.php';
+require_once __DIR__ . '/../exception/BackendExceptions.php';
 require_once __DIR__ . '/../model/MedicoModel.php';
 
 final class MedicoService
@@ -33,27 +34,21 @@ final class MedicoService
                 ];
             }
 
-            return [
-                'statusCode' => 405,
-                'payload' => [
-                    'message' => 'Metodo nao permitido.',
-                ],
-            ];
-        } catch (InvalidArgumentException $exception) {
-            return [
-                'statusCode' => 422,
-                'payload' => [
-                    'message' => $exception->getMessage(),
-                ],
-            ];
+            throw new MethodNotAllowedException();
+        } catch (PDOException $exception) {
+            if ($this->isDuplicateError($exception)) {
+                throw new DuplicateResourceException('Medico com CRM e UFCRM ja cadastrado.');
+            }
+
+            throw new InternalServerException('Erro interno no servidor.', [
+                'reason' => $exception->getMessage(),
+            ]);
+        } catch (CustomApiException $exception) {
+            throw $exception;
         } catch (Throwable $exception) {
-            return [
-                'statusCode' => 500,
-                'payload' => [
-                    'message' => 'Erro interno no servidor.',
-                    'error' => $exception->getMessage(),
-                ],
-            ];
+            throw new InternalServerException('Erro interno no servidor.', [
+                'reason' => $exception->getMessage(),
+            ]);
         }
     }
 
@@ -78,9 +73,17 @@ final class MedicoService
         $decoded = json_decode($rawBody !== '' ? $rawBody : '{}', true);
 
         if (!is_array($decoded)) {
-            throw new InvalidArgumentException('Body deve ser um JSON valido.');
+            throw new ValidationException('Body deve ser um JSON valido.');
         }
 
         return $decoded;
+    }
+
+    private function isDuplicateError(PDOException $exception): bool
+    {
+        $sqlState = $exception->getCode();
+        $driverCode = $exception->errorInfo[1] ?? null;
+
+        return $sqlState === '23000' && (int) $driverCode === 1062;
     }
 }

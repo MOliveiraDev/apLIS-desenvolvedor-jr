@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../exception/BackendExceptions.php';
+
 final class MedicoDTO
 {
     public function __construct(
@@ -19,11 +21,11 @@ final class MedicoDTO
         $ufcrm = strtoupper(trim((string) ($payload['UFCRM'] ?? '')));
 
         if ($nome === '' || $crm === '' || $ufcrm === '') {
-            throw new InvalidArgumentException('Campos obrigatorios: nome, CRM e UFCRM.');
+            throw new ValidationException('Campos obrigatorios: nome, CRM e UFCRM.');
         }
 
         if (strlen($ufcrm) !== 2) {
-            throw new InvalidArgumentException('UFCRM deve conter 2 caracteres.');
+            throw new ValidationException('UFCRM deve conter 2 caracteres.');
         }
 
         return new self(null, $nome, $crm, $ufcrm);
