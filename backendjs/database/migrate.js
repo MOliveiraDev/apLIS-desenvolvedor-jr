@@ -2,9 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const { pool } = require('../src/config/database');
 
+const MIGRATIONS_TABLE = 'migrations_nodejs';
+
 async function ensureMigrationsTable() {
   await pool.execute(`
-    CREATE TABLE IF NOT EXISTS migrations (
+    CREATE TABLE IF NOT EXISTS ${MIGRATIONS_TABLE} (
       id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
       migration VARCHAR(255) NOT NULL UNIQUE,
       batch INT UNSIGNED NOT NULL,
@@ -14,18 +16,18 @@ async function ensureMigrationsTable() {
 }
 
 async function getAppliedMigrations() {
-  const [rows] = await pool.execute('SELECT migration FROM migrations');
+  const [rows] = await pool.execute(`SELECT migration FROM ${MIGRATIONS_TABLE}`);
   return rows.map((row) => row.migration);
 }
 
 async function getNextBatch() {
-  const [rows] = await pool.execute('SELECT COALESCE(MAX(batch), 0) AS maxBatch FROM migrations');
+  const [rows] = await pool.execute(`SELECT COALESCE(MAX(batch), 0) AS maxBatch FROM ${MIGRATIONS_TABLE}`);
   return Number(rows[0].maxBatch || 0) + 1;
 }
 
 async function applyMigration(fileName, sql, batch) {
   await pool.execute(sql);
-  await pool.execute('INSERT INTO migrations (migration, batch) VALUES (?, ?)', [fileName, batch]);
+  await pool.execute(`INSERT INTO ${MIGRATIONS_TABLE} (migration, batch) VALUES (?, ?)`, [fileName, batch]);
 }
 
 async function run() {

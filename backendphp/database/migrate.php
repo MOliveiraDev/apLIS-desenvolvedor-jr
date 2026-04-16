@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../src/config/database.php';
 
+const MIGRATIONS_TABLE = 'migrations_php';
+
 function ensureMigrationsTable(PDO $connection): void
 {
     $connection->exec(
-        'CREATE TABLE IF NOT EXISTS migrations (
+        'CREATE TABLE IF NOT EXISTS ' . MIGRATIONS_TABLE . ' (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             migration VARCHAR(255) NOT NULL UNIQUE,
             batch INT UNSIGNED NOT NULL,
@@ -18,14 +20,14 @@ function ensureMigrationsTable(PDO $connection): void
 
 function getAppliedMigrations(PDO $connection): array
 {
-    $statement = $connection->query('SELECT migration FROM migrations');
+    $statement = $connection->query('SELECT migration FROM ' . MIGRATIONS_TABLE);
 
     return $statement->fetchAll(PDO::FETCH_COLUMN) ?: [];
 }
 
 function getNextBatch(PDO $connection): int
 {
-    $statement = $connection->query('SELECT COALESCE(MAX(batch), 0) AS max_batch FROM migrations');
+    $statement = $connection->query('SELECT COALESCE(MAX(batch), 0) AS max_batch FROM ' . MIGRATIONS_TABLE);
     $row = $statement->fetch();
 
     return ((int) ($row['max_batch'] ?? 0)) + 1;
@@ -36,7 +38,7 @@ function applyMigration(PDO $connection, string $migrationName, string $sql, int
     $connection->exec($sql);
 
     $insert = $connection->prepare(
-        'INSERT INTO migrations (migration, batch) VALUES (:migration, :batch)'
+        'INSERT INTO ' . MIGRATIONS_TABLE . ' (migration, batch) VALUES (:migration, :batch)'
     );
     $insert->execute([
         'migration' => $migrationName,

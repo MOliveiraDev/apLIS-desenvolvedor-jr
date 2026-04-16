@@ -12,6 +12,27 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
 $path = (string) parse_url($requestUri, PHP_URL_PATH);
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET,POST,OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Content-Type: application/json; charset=utf-8');
+
+if ($method === 'OPTIONS') {
+    http_response_code(204);
+
+    return;
+}
+
+if ($path === '/health' && $method === 'GET') {
+    echo json_encode([
+        'status' => 'ok',
+        'service' => 'backendphp',
+        'timestamp' => (new DateTimeImmutable())->format(DATE_ATOM),
+    ], JSON_UNESCAPED_UNICODE);
+
+    return;
+}
+
 try {
     $connection = Database::getConnection();
 } catch (Throwable $exception) {
@@ -22,7 +43,6 @@ try {
         ]);
 
     http_response_code(500);
-    header('Content-Type: application/json; charset=utf-8');
     echo json_encode($startupException->toResponse(), JSON_UNESCAPED_UNICODE);
 
     return;
@@ -40,5 +60,4 @@ if ($path === '/api/v1/medicos') {
 
  $notFoundException = new NotFoundException();
 http_response_code($notFoundException->status);
-header('Content-Type: application/json; charset=utf-8');
 echo json_encode($notFoundException->toResponse(), JSON_UNESCAPED_UNICODE);

@@ -11,6 +11,17 @@ const {
 const CustomApiException = require('./exception/CustomApiException');
 
 const app = express();
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).send();
+  }
+
+  return next();
+});
 app.use(express.json());
 
 const port = Number(process.env.PORT || 3001);
@@ -18,6 +29,14 @@ const port = Number(process.env.PORT || 3001);
 const pacienteModel = new PacienteModel(pool);
 const pacienteService = new PacienteService(pacienteModel);
 const pacienteController = new PacienteController(pacienteService);
+
+app.get('/health', (_req, res) => {
+  return res.status(200).json({
+    status: 'ok',
+    service: 'backendjs',
+    timestamp: new Date().toISOString(),
+  });
+});
 
 app.all('/api/v1/pacientes', async (req, res) => {
   await pacienteController.handle(req, res);
