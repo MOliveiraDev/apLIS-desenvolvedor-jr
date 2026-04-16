@@ -1,0 +1,82 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: aplis_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hospital_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backendphp:
+    build:
+      context: ./backendphp
+      dockerfile: Dockerfile
+    container_name: aplis_backendphp
+    environment:
+      APP_ENV: docker
+      APP_DEBUG: "false"
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: hospital_db
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      DB_CHARSET: utf8mb4
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "php -r \"exit((int)!@file_get_contents('http://127.0.0.1:8000/health'));\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backendjs:
+    build:
+      context: ./backendjs
+      dockerfile: Dockerfile
+    container_name: aplis_backendjs
+    environment:
+      PORT: "3001"
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: hospital_db
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      DB_CHARSET: utf8mb4
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3001/health').then(r=>r.json()).then(j=>process.exit(j.status==='ok'?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  frontend:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: aplis_frontend
+    environment:
+      VITE_API_MEDICOS_URL: http://localhost:8000/api/v1/medicos
+      VITE_API_PACIENTES_URL: http://localhost:3001/api/v1/pacientes
+    depends_on:
+      backendphp:
+        condition: service_healthy
+      backendjs:
+        condition: service_healthy
+    ports:
+      - "5173:5173"
+
+volumes:
+  mysql_data:
