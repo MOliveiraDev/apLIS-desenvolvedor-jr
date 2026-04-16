@@ -4,6 +4,8 @@
   "main": "src/server.js",
   "scripts": {
     "migrate": "node database/migrate.js",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
     "dev": "node src/server.js",
     "start": "node src/server.js"
   },
@@ -15,5 +17,8 @@
     "dotenv": "^16.6.1",
     "express": "^5.2.1",
     "mysql2": "^3.15.2"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0"
   }
 }
