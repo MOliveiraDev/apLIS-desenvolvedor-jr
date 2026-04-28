@@ -38,6 +38,8 @@ app.get('/health', (_req, res) => {
   });
 });
 
+// deveria ser app.get('/api/v1/pacientes'... e app.post('/api/v1/pacientes'
+
 app.all('/api/v1/pacientes', async (req, res) => {
   await pacienteController.handle(req, res);
 });

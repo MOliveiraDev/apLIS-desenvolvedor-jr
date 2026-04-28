@@ -48,6 +48,7 @@ try {
     return;
 }
 
+// deveria ter GET /api/v1/medicos e POST /api/1/medicos
 if ($path === '/api/v1/medicos') {
     $model = new MedicoModel($connection);
     $service = new MedicoService($model);
